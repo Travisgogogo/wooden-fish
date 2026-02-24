@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>宝宝成长记 - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F8F9FA;
+            color: #1A1A1A;
+            line-height: 1.5;
+            padding-bottom: 80px;
+        }
+        
+        /* 顶部 */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 24px 20px;
+            color: white;
+        }
+        
+        .baby-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .baby-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .baby-details h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .baby-meta {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .baby-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+        
+        /* 快捷操作 */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 20px;
+            background: white;
+            margin: 16px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .action-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        
+        .action-icon.feed { background: #FFF3E0; }
+        .action-icon.sleep { background: #E8F5E9; }
+        .action-icon.diaper { background: #FFF8E1; }
+        .action-icon.growth { background: #E3F2FD; }
+        
+        .action-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* 内容区块 */
+        .section {
+            background: white;
+            margin: 16px;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .section-title {
+            font-size: 17px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-more {
+            font-size: 13px;
+            color: #667eea;
+        }
+        
+        /* 生长曲线 */
+        .growth-chart {
+            height: 180px;
+            background: linear-gradient(to bottom, #f8f9ff 0%, #fff 100%);
+            border-radius: 12px;
+            position: relative;
+            padding: 20px;
+        }
+        
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* 记录列表 */
+        .record-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .record-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background: #F8F9FA;
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+        
+        .record-item:hover {
+            background: #F0F1F2;
+        }
+        
+        .record-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        
+        .record-icon.milk { background: #FFF3E0; }
+        .record-icon.sleep { background: #E8F5E9; }
+        .record-icon.diaper { background: #FFF8E1; }
+        
+        .record-content {
+            flex: 1;
+        }
+        
+        .record-title {
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        .record-desc {
+            font-size: 13px;
+            color: #888;
+            margin-top: 2px;
+        }
+        
+        .record-time {
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        /* 里程碑 */
+        .milestone-list {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        
+        .milestone-item {
+            min-width: 90px;
+            padding: 16px 12px;
+            background: #F8F9FA;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .milestone-item.completed {
+            background: #E8F5E9;
+        }
+        
+        .milestone-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .milestone-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .milestone-name {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            padding: 8px 0 20px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s;
+        }
+        
+        .nav-item.active {
+            color: #667eea;
+        }
+        
+        .nav-icon {
+            font-size: 24px;
+        }
+        
+        .nav-label {
+            font-size: 11px;
+        }
+        
+        /* 弹窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-height: 85vh;
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+        
+        .modal-close:hover {
+            background: #F0F1F2;
+        }
+        
+        /* 表单 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #E8E8E8;
+            border-radius: 12px;
+            font-size: 16px;
+            background: #F8F9FA;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+        
+        .input-with-unit {
+            position: relative;
+        }
+        
+        .input-unit {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: opacity 0.2s;
+        }
+        
+        .btn-primary:active {
+            opacity: 0.9;
+        }
+        
+        /* 喂养类型选择 */
+        .feed-types {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .feed-type {
+            padding: 16px 12px;
+            border: 2px solid #E8E8E8;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .feed-type.active {
+            border-color: #667eea;
+            background: #F0F2FF;
+        }
+        
+        .feed-type-icon {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+        
+        .feed-type-name {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        /* 时间选择 */
+        .time-picker {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .time-picker input {
+            flex: 1;
+        }
+        
+        /* 备注输入 */
+        .note-input {
+            min-height: 80px;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部 -->
+    <div class="header">
+        <div class="baby-info">
+            <div class="baby-avatar">👶</div>
+            <div class="baby-details">
+                <h1>小汤圆</h1>
+                <div class="baby-meta">8个月15天 · 女宝</div>
+            </div>
+        </div>
+        <div class="baby-stats">
+            <div class="stat-item">
+                <div class="stat-value">8.2</div>
+                <div class="stat-label">体重 kg</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">70</div>
+                <div class="stat-label">身高 cm</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">45</div>
+                <div class="stat-label">头围 cm</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 快捷操作 -->
+    <div class="quick-actions">
+        <div class="action-btn" onclick="openModal('feed')">
+            <div class="action-icon feed">🍼</div>
+            <div class="action-label">喂奶</div>
+        </div>
+        <div class="action-btn" onclick="openModal('sleep')">
+            <div class="action-icon sleep">😴</div>
+            <div class="action-label">睡眠</div>
+        </div>
+        <div class="action-btn" onclick="openModal('diaper')">
+            <div class="action-icon diaper">💩</div>
+            <div class="action-label">换尿布</div>
+        </div>
+        <div class="action-btn" onclick="openModal('growth')">
+            <div class="action-icon growth">📏</div>
+            <div class="action-label">量身高</div>
+        </div>
+    </div>
+
+    <!-- 生长曲线 -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-title">📈 生长曲线</div>
+            <div class="section-more">查看详情 →</div>
+        </div>
+        <div class="growth-chart">
+            <svg class="chart-svg" viewBox="0 0 300 140">
+                <!-- 网格线 -->
+                <line x1="0" y1="20" x2="300" y2="20" stroke="#E8E8E8" stroke-width="1"/>
+                <line x1="0" y1="70" x2="300" y2="70" stroke="#E8E8E8" stroke-width="1"/>
+                <line x1="0" y1="120" x2="300" y2="120" stroke="#E8E8E8" stroke-width="1"/>
+                
+                <!-- 曲线 -->
+                <path d="M 20 100 Q 80 80, 140 60 T 260 30" 
+                      fill="none" 
+                      stroke="#667eea" 
+                      stroke-width="3"
+                      stroke-linecap="round"/>
+                
+                <!-- 数据点 -->
+                <circle cx="20" cy="100" r="5" fill="#667eea"/>
+                <circle cx="80" cy="85" r="5" fill="#667eea"/>
+                <circle cx="140" cy="65" r="5" fill="#667eea"/>
+                <circle cx="200" cy="45" r="5" fill="#667eea"/>
+                <circle cx="260" cy="30" r="6" fill="#667eea" stroke="white" stroke-width="2"/>
+                
+                <!-- 标签 -->
+                <text x="20" y="135" font-size="10" fill="#999" text-anchor="middle">出生</text>
+                <text x="80" y="135" font-size="10" fill="#999" text-anchor="middle">3月</text>
+                <text x="140" y="135" font-size="10" fill="#999" text-anchor="middle">6月</text>
+                <text x="200" y="135" font-size="10" fill="#999" text-anchor="middle">9月</text>
+                <text x="260" y="135" font-size="10" fill="#999" text-anchor="middle">现在</text>
+            </svg>
+        </div>
+    </div>
+
+    <!-- 今日记录 -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-title">📝 今日记录</div>
+            <div class="section-more">全部记录 →</div>
+        </div>
+        <div class="record-list">
+            <div class="record-item">
+                <div class="record-icon milk">🍼</div>
+                <div class="record-content">
+                    <div class="record-title">母乳喂养 · 左侧</div>
+                    <div class="record-desc">15分钟 · 奶量约 120ml</div>
+                </div>
+                <div class="record-time">2小时前</div>
+            </div>
+            <div class="record-item">
+                <div class="record-icon sleep">😴</div>
+                <div class="record-content">
+                    <div class="record-title">午睡</div>
+                    <div class="record-desc">1小时30分钟 · 安稳</div>
+                </div>
+                <div class="record-time">4小时前</div>
+            </div>
+            <div class="record-item">
+                <div class="record-icon diaper">💩</div>
+                <div class="record-content">
+                    <div class="record-title">大便</div>
+                    <div class="record-desc">黄色糊状 · 正常</div>
+                </div>
+                <div class="record-time">5小时前</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 发育里程碑 -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-title">🎯 8月龄里程碑</div>
+            <div class="section-more">3/8 已完成 →</div>
+        </div>
+        <div class="milestone-list">
+            <div class="milestone-item completed">
+                <div class="milestone-icon">✅</div>
+                <div class="milestone-name">独坐稳定</div>
+            </div>
+            <div class="milestone-item completed">
+                <div class="milestone-icon">✅</div>
+                <div class="milestone-name">双手传递</div>
+            </div>
+            <div class="milestone-item completed">
+                <div class="milestone-icon">✅</div>
+                <div class="milestone-name">咿呀学语</div>
+            </div>
+            <div class="milestone-item">
+                <div class="milestone-icon">⭕</div>
+                <div class="milestone-name">爬行</div>
+            </div>
+            <div class="milestone-item">
+                <div class="milestone-icon">⭕</div>
+                <div class="milestone-name">理解"不"</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">首页</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">📊</div>
+            <div class="nav-label">生长</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">➕</div>
+            <div class="nav-label">记录</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">🎯</div>
+            <div class="nav-label">里程碑</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">我的</div>
+        </div>
+    </div>
+
+    <!-- 喂奶弹窗 -->
+    <div class="modal" id="modal-feed">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">记录喂奶</div>
+                <div class="modal-close" onclick="closeModal('feed')">✕</div>
+            </div>
+            <div class="feed-types">
+                <div class="feed-type active" onclick="selectFeedType(this)">
+                    <div class="feed-type-icon">🤱</div>
+                    <div class="feed-type-name">母乳</div>
+                </div>
+                <div class="feed-type" onclick="selectFeedType(this)">
+                    <div class="feed-type-icon">🍼</div>
+                    <div class="feed-type-name">配方奶</div>
+                </div>
+                <div class="feed-type" onclick="selectFeedType(this)">
+                    <div class="feed-type-icon">🥄</div>
+                    <div class="feed-type-name">辅食</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">奶量</label>
+                <div class="input-with-unit">
+                    <input type="number" class="form-input" placeholder="例如: 120">
+                    <span class="input-unit">ml</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">时间</label>
+                <input type="time" class="form-input" value="14:30">
+            </div>
+            <div class="form-group">
+                <label class="form-label">备注</label>
+                <textarea class="form-input note-input" placeholder="可选填"></textarea>
+            </div>
+            <button class="btn-primary" onclick="saveRecord('feed')">保存记录</button>
+        </div>
+    </div>
+
+    <!-- 睡眠弹窗 -->
+    <div class="modal" id="modal-sleep">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">记录睡眠</div>
+                <div class="modal-close" onclick="closeModal('sleep')">✕</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">入睡时间</label>
+                <input type="time" class="form-input" value="13:00">
+            </div>
+            <div class="form-group">
+                <label class="form-label">醒来时间</label>
+                <input type="time" class="form-input" value="14:30">
+            </div>
+            <div class="form-group">
+                <label class="form-label">睡眠质量</label>
+                <select class="form-input">
+                    <option>安稳</option>
+                    <option>易醒</option>
+                    <option>哭闹</option>
+                </select>
+            </div>
+            <button class="btn-primary" onclick="saveRecord('sleep')">保存记录</button>
+        </div>
+    </div>
+
+    <!-- 换尿布弹窗 -->
+    <div class="modal" id="modal-diaper">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">记录换尿布</div>
+                <div class="modal-close" onclick="closeModal('diaper')">✕</div>
+            </div>
+            <div class="feed-types">
+                <div class="feed-type active" onclick="selectFeedType(this)">
+                    <div class="feed-type-icon">💩</div>
+                    <div class="feed-type-name">大便</div>
+                </div>
+                <div class="feed-type" onclick="selectFeedType(this)">
+                    <div class="feed-type-icon">💧</div>
+                    <div class="feed-type-name">小便</div>
+                </div>
+                <div class="feed-type" onclick="selectFeedType(this)">
+                    <div class="feed-type-icon">💩💧</div>
+                    <div class="feed-type-name">都有</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">性状</label>
+                <input type="text" class="form-input" placeholder="黄色糊状 / 绿色 / 稀便">
+            </div>
+            <button class="btn-primary" onclick="saveRecord('diaper')">保存记录</button>
+        </div>
+    </div>
+
+    <!-- 量身高弹窗 -->
+    <div class="modal" id="modal-growth">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">记录生长数据</div>
+                <div class="modal-close" onclick="closeModal('growth')">✕</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">体重</label>
+                <div class="input-with-unit">
+                    <input type="number" class="form-input" placeholder="例如: 8.2" step="0.1">
+                    <span class="input-unit">kg</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">身高</label>
+                <div class="input-with-unit">
+                    <input type="number" class="form-input" placeholder="例如: 70" step="0.1">
+                    <span class="input-unit">cm</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">头围</label>
+                <div class="input-with-unit">
+                    <input type="number" class="form-input" placeholder="例如: 45" step="0.1">
+                    <span class="input-unit">cm</span>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="saveRecord('growth')">保存记录</button>
+        </div>
+    </div>
+
+    <script>
+        function openModal(type) {
+            document.getElementById('modal-' + type).classList.add('active');
+        }
+        
+        function closeModal(type) {
+            document.getElementById('modal-' + type).classList.remove('active');
+        }
+        
+        function selectFeedType(element) {
+            element.parentElement.querySelectorAll('.feed-type').forEach(el => {
+                el.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+        
+        function saveRecord(type) {
+            alert('记录已保存！');
+            closeModal(type);
+        }
+        
+        // 点击遮罩关闭
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
