@@ -29,6 +29,9 @@ jobs:
         cp temp_project/.metadata .
         cp temp_project/analysis_options.yaml .
         
+        # 修改 compileSdkVersion
+        sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 34/' android/app/build.gradle
+        
         # 清理临时项目
         rm -rf temp_project
     

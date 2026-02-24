@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 
@@ -34,14 +33,12 @@ class WoodenFishPage extends StatefulWidget {
 class _WoodenFishPageState extends State<WoodenFishPage>
     with SingleTickerProviderStateMixin {
   int merit = 0;
-  late AudioPlayer audioPlayer;
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    audioPlayer = AudioPlayer();
     _loadMerit();
     _controller = AnimationController(
       duration: const Duration(milliseconds: 100),
@@ -64,14 +61,6 @@ class _WoodenFishPageState extends State<WoodenFishPage>
     await prefs.setInt('merit', merit);
   }
 
-  Future<void> _playSound() async {
-    try {
-      await audioPlayer.play(AssetSource('wooden_fish.mp3'));
-    } catch (e) {
-      // 如果音频文件不存在，使用系统音效
-    }
-  }
-
   Future<void> _vibrate() async {
     if (await Vibration.hasVibrator() ?? false) {
       Vibration.vibrate(duration: 50);
@@ -84,7 +73,6 @@ class _WoodenFishPageState extends State<WoodenFishPage>
       merit++;
     });
     _saveMerit();
-    _playSound();
     _vibrate();
   }
 
@@ -116,7 +104,6 @@ class _WoodenFishPageState extends State<WoodenFishPage>
 
   @override
   void dispose() {
-    audioPlayer.dispose();
     _controller.dispose();
     super.dispose();
   }
