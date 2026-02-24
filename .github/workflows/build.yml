@@ -46,17 +46,4 @@ jobs:
       with:
         name: electronic-wooden-fish-apk
         path: build/app/outputs/flutter-apk/app-release.apk
-    
-    - name: Create Release
-      if: github.ref == 'refs/heads/main'
-      uses: softprops/action-gh-release@v1
-      with:
-        files: build/app/outputs/flutter-apk/app-release.apk
-        tag_name: v${{ github.run_number }}
-        name: Electronic Wooden Fish v${{ github.run_number }}
-        body: |
-          电子木鱼 APK 自动构建
-          - 点击屏幕敲木鱼
-          - 自动累计功德
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        retention-days: 30
