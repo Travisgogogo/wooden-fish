@@ -1,0 +1,59 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.16.0'
+        channel: 'stable'
+    
+    - name: Create Flutter Project
+      run: |
+        # 创建临时项目
+        flutter create --project-name electronic_wooden_fish temp_project
+        
+        # 复制我们的代码
+        cp -r temp_project/android .
+        cp -r temp_project/ios .
+        cp temp_project/.metadata .
+        cp temp_project/analysis_options.yaml .
+        
+        # 清理临时项目
+        rm -rf temp_project
+    
+    - name: Get dependencies
+      run: flutter pub get
+    
+    - name: Build APK
+      run: flutter build apk --release
+    
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: electronic-wooden-fish-apk
+        path: build/app/outputs/flutter-apk/app-release.apk
+    
+    - name: Create Release
+      if: github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: build/app/outputs/flutter-apk/app-release.apk
+        tag_name: v${{ github.run_number }}
+        name: Electronic Wooden Fish v${{ github.run_number }}
+        body: |
+          电子木鱼 APK 自动构建
+          - 点击屏幕敲木鱼
+          - 自动累计功德
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
